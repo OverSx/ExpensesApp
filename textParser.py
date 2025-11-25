@@ -2,6 +2,7 @@ import dbInit
 
 import re
 import sqlite3
+from datetime import date, timedelta, datetime
 
 from PySide6.QtWidgets import QMessageBox
 
@@ -58,7 +59,7 @@ def blocks_parser(text_blocks):
             operation.append(text_parts[3])
 
             #add place
-            operation.append(text_blocks[i][2])
+            operation.append(f"Оплата {text_blocks[i][2]}")
 
             #add fixed param
             operation.append(0)
@@ -76,7 +77,7 @@ def blocks_parser(text_blocks):
             operation.append(None)
 
             #add place
-            operation.append(None)
+            operation.append("Перевод")
 
             #add fixed param
             operation.append(0)
@@ -104,3 +105,30 @@ def blocks_parser(text_blocks):
         operation = []
 
     return parsed_data
+
+def first_year_generator(starting_year):
+    weeks = []
+    week = []
+
+    d = dbInit.db_last_date_request()
+    if not d:
+        d = date(starting_year, 1, 1)
+        while d.weekday() != 5:
+            d += timedelta(days=1)
+
+    if isinstance(d, date):
+        current_date = d
+    else:
+        current_date = datetime.strptime(d, "%d/%m/%Y").date()
+
+    for i in range(1, 53):
+        for day in range(1, 8):
+            week.append(current_date.year)
+            week.append(i)
+            week.append(current_date.strftime("%d/%m/%Y"))
+            weeks.append(week.copy())
+            week = []
+
+            current_date += timedelta(days=1)
+
+    return weeks
