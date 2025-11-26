@@ -2,12 +2,13 @@ import sqlite3
 
 DB_NAME = "expenses.db"
 
-def init_db_expenses():
+def init_db_expenses(week, year):
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
 
+    table_name = f"{week}_{year}"
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS expenses (
+        CREATE TABLE IF NOT EXISTS "{table_name}" (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             amount REAL,
             currency TEXT NOT NULL,
@@ -42,10 +43,11 @@ def save_new_expense(expenses_list):
     cur = conn.cursor()
 
     for expense in expenses_list:
+        table_name = f"{expense[0]}_{expense[1]}"
         cur.execute("""
-            INSERT INTO expenses (amount, currency, date, time, place, fixed)
+            INSERT INTO "{table_name}" (amount, currency, date, time, place, fixed)
             VALUES (?, ?, ?, ?, ?, ?)
-        """, (expense[0], expense[1], expense[2], expense[3], expense[4], expense[5]))
+        """, (expense[2], expense[3], expense[4], expense[5], expense[6], expense[7]))
 
     conn.commit()
     conn.close()
@@ -86,3 +88,18 @@ def db_last_date_request():
     else:
         conn.close()
         return None
+
+def get_week_and_year(date):
+    conn = sqlite3.connect(DB_NAME)
+    cur = conn.cursor()
+
+    cur.execute("""
+                SELECT Year, Week
+                FROM weeks
+                WHERE Date = ?
+                """, (date,))
+
+    row = cur.fetchone()
+
+    conn.close()
+    return row
