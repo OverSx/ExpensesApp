@@ -6,8 +6,11 @@ import sys
 sys.setswitchinterval(0.01)
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QPushButton, QScrollArea, QVBoxLayout
-from PySide6.QtWidgets import QMessageBox
+from PySide6.QtWidgets import QMessageBox, QDialog, QLineEdit
+from PySide6.QtCore import QDate
+from PySide6.QtGui import QDoubleValidator
 from ui_form import Ui_MainWindow
+from ui_dialog import Ui_Dialog
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -24,6 +27,9 @@ class MainWindow(QMainWindow):
         self.ui.rightToolSwitchWeek.clicked.connect(self.rightToolSwitchWeek_click)
         self.ui.rightToolButton.clicked.connect(self.rightToolButton_click)
         self.ui.leftToolButton.clicked.connect(self.leftToolButton_click)
+        self.ui.removeExpensesBtn.clicked.connect(self.removeExpensesBtn_click)
+        self.ui.addExpensesFileBtn.clicked.connect(self.addExpensesFileBtn_click)
+        self.ui.addExpensesToDBBtn.clicked.connect(self.addExpensesToDBBtn_click)
 
     def addExpensesTextBtn_click(self):
         blocks = textParser.text_parser(self.ui.addExpensesTextEdit.toPlainText())
@@ -33,8 +39,9 @@ class MainWindow(QMainWindow):
 
     def expensesToBtn(self, operation_list):
         for item in operation_list:
+            year, week = textParser.expense_distributor(item[2])
             btn = QPushButton(f"Сумма: {item[0]} {item[1]}, {item[4]}")
-            btn.setToolTip(f"Сумма: {item[0]} {item[1]}\nМесто: {item[4]}\nДата: {item[2]}\nВремя: {item[3]}")
+            btn.setToolTip(f"Год: {year}\nНеделя: {week}\nСумма: {item[0]}\nВалюта: {item[1]}\nДата: {item[2]}\nВремя: {item[3]}\nМесто: {item[4]}")
             btn.setCheckable(True)
             btn.setFixedSize(320, 22)
 
@@ -48,8 +55,7 @@ class MainWindow(QMainWindow):
 
 
     def rightToolSwitchWeek_click(self):
-        weeks = textParser.year_generator(2025)
-        print(weeks)
+        QMessageBox(self, "", "Gay")
 
     def rightToolButton_click(self):
         widgets = []
@@ -81,7 +87,66 @@ class MainWindow(QMainWindow):
                 self.layout_unfix.removeWidget(widget)
                 self.layout_fix.addWidget(widget)
 
+    def removeExpensesBtn_click(self):
+        widgets = []
 
+        for i in range(self.layout_unfix.count()):
+            item = self.layout_unfix.itemAt(i)
+            widget = item.widget()
+            if widget is not None:
+                widgets.append(widget)
+
+        for i in range(self.layout_fix.count()):
+            item = self.layout_fix.itemAt(i)
+            widget = item.widget()
+            if widget is not None:
+                widgets.append(widget)
+
+        for widget in widgets:
+            if hasattr(widget, "isChecked") and widget.isChecked():
+                self.layout_fix.removeWidget(widget)
+                self.layout_unfix.removeWidget(widget)
+                widget.setParent(None)
+
+
+    def addExpensesFileBtn_click(self):
+        textParser.year_generator(2025)
+
+    def addExpensesToDBBtn_click(self):
+        dialog = AddExpenseDialog(self)
+        dialog.exec()
+
+class AddExpenseDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.ui = Ui_Dialog()
+        self.ui.setupUi(self)
+
+        #element settings
+        self.ui.dateEdit.setDate(QDate.currentDate())
+        self.ui.lineEditAmount.setPlaceholderText("Обязательное поле")
+        self.ui.lineEditAmount.setStyleSheet("border: 1px solid red;")
+        self.ui.lineEditAmount.textChanged.connect(self.validate_amount)
+        self.ui.lineEditAmount.setValidator(QDoubleValidator(0.0, 9999999.99, 2))
+        self.ui.pushButtonAdd.setEnabled(False)
+
+        #buttons
+        self.ui.pushButtonCancel.clicked.connect(self.close)
+        self.ui.pushButtonAdd.clicked.connect(self.pushButtonAdd_click)
+
+
+    def pushButtonAdd_click(self):
+        return 0
+
+    def validate_amount(self):
+        text = self.ui.lineEditAmount.text()
+
+        if not text:
+            self.ui.lineEditAmount.setStyleSheet("border: 1px solid red;")
+            self.ui.pushButtonAdd.setEnabled(False)
+        else:
+            self.ui.lineEditAmount.setStyleSheet("")
+            self.ui.pushButtonAdd.setEnabled(True)
 
 
 if __name__ == "__main__":
