@@ -106,7 +106,7 @@ def blocks_parser(text_blocks):
 
     return parsed_data
 
-def first_year_generator(starting_year):
+def year_generator(starting_year):
     weeks = []
     week = []
 
@@ -120,6 +120,7 @@ def first_year_generator(starting_year):
         current_date = d
     else:
         current_date = datetime.strptime(d, "%d/%m/%Y").date()
+        current_date += timedelta(days=1)
 
     for i in range(1, 53):
         for day in range(1, 8):
