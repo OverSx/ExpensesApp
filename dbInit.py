@@ -37,26 +37,28 @@ def init_db_weeks():
     conn.commit()
     conn.close()
 
-def save_new_expense(amount, currency, date, time, place, fixed):
+def save_new_expense(expenses_list):
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
 
-    cur.execute("""
-        INSERT INTO expenses (amount, currency, date, time, place, fixed)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (amount, currency, date, time, place, fixed))
+    for expense in expenses_list:
+        cur.execute("""
+            INSERT INTO expenses (amount, currency, date, time, place, fixed)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (expense[0], expense[1], expense[2], expense[3], expense[4], expense[5]))
 
     conn.commit()
     conn.close()
 
-def save_new_weeks(year, week, date):
+def save_new_weeks(week_list):
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
 
-    cur.execute("""
-        INSERT INTO weeks (Year, Week, Date)
-        VALUES (?, ?, ?)
-    """, (year, week, date))
+    for week in week_list:
+        cur.execute("""
+            INSERT INTO weeks (Year, Week, Date)
+            VALUES (?, ?, ?)
+        """, (week[0], week[1], week[2]))
 
     conn.commit()
     conn.close()
