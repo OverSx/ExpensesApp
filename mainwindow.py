@@ -6,7 +6,7 @@ import sys
 sys.setswitchinterval(0.01)
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QPushButton, QScrollArea, QVBoxLayout
-from PySide6.QtGui import QPalette
+from PySide6.QtWidgets import QMessageBox
 from ui_form import Ui_MainWindow
 
 class MainWindow(QMainWindow):
@@ -15,10 +15,12 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
-        self.layout = QVBoxLayout(self.ui.gridLayoutExpenses)
+        self.layout_fix = QVBoxLayout(self.ui.gridLayoutExpenses)
+        self.layout_unfix = QVBoxLayout(self.ui.gridLayoutExtraExpenses)
 
 
         self.ui.addExpensesTextBtn.clicked.connect(self.addExpensesTextBtn_click)
+        self.ui.rightToolSwitchWeek.clicked.connect(self.rightToolSwitchWeek_click)
 
     def addExpensesTextBtn_click(self):
         blocks = textParser.text_parser(self.ui.addExpensesTextEdit.toPlainText())
@@ -33,8 +35,18 @@ class MainWindow(QMainWindow):
             btn.setCheckable(True)
             btn.setFixedSize(320, 22)
 
-            self.layout.addWidget(btn)
+            if item[5] == 0:
+                self.layout_unfix.addWidget(btn)
+            elif item[5] == 1:
+                self.layout_fix.addWidget(btn)
+            else:
+                QMessageBox(self, "Предупреждение", f"Трата в {item[4]}  на сумму {item[0]} сохранилась неправильно. "
+                                                    f"Она не будет учтена")
 
+
+    def rightToolSwitchWeek_click(self):
+        weeks = textParser.year_generator(2025)
+        print(weeks)
 
 
 
