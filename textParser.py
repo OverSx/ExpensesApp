@@ -132,4 +132,9 @@ def year_generator(starting_year):
 
             current_date += timedelta(days=1)
 
-    return weeks
+    dbInit.init_db_weeks()
+    dbInit.save_new_weeks(weeks)
+
+def expense_distributor(date):
+    return dbInit.get_week_and_year(date)
+
