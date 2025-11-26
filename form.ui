@@ -240,7 +240,7 @@
    <widget class="QPushButton" name="removeExpensesBtn">
     <property name="geometry">
      <rect>
-      <x>270</x>
+      <x>720</x>
       <y>530</y>
       <width>100</width>
       <height>22</height>
@@ -259,7 +259,7 @@
    <widget class="QPushButton" name="addExpensesToDBBtn">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>610</x>
       <y>530</y>
       <width>100</width>
       <height>22</height>
@@ -350,6 +350,25 @@
     </property>
     <property name="arrowType">
      <enum>Qt::ArrowType::LeftArrow</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="addExpensesToColumns">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>530</y>
+      <width>100</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="cursor">
+     <cursorShape>PointingHandCursor</cursorShape>
+    </property>
+    <property name="text">
+     <string>Добавить трату</string>
+    </property>
+    <property name="autoDefault">
+     <bool>false</bool>
     </property>
    </widget>
   </widget>
