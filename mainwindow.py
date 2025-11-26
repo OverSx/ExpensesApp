@@ -15,12 +15,15 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        #scrollAreas
         self.layout_fix = QVBoxLayout(self.ui.gridLayoutExpenses)
         self.layout_unfix = QVBoxLayout(self.ui.gridLayoutExtraExpenses)
 
-
+        #buttons
         self.ui.addExpensesTextBtn.clicked.connect(self.addExpensesTextBtn_click)
         self.ui.rightToolSwitchWeek.clicked.connect(self.rightToolSwitchWeek_click)
+        self.ui.rightToolButton.clicked.connect(self.rightToolButton_click)
+        self.ui.leftToolButton.clicked.connect(self.leftToolButton_click)
 
     def addExpensesTextBtn_click(self):
         blocks = textParser.text_parser(self.ui.addExpensesTextEdit.toPlainText())
@@ -41,12 +44,43 @@ class MainWindow(QMainWindow):
                 self.layout_fix.addWidget(btn)
             else:
                 QMessageBox(self, "Предупреждение", f"Трата в {item[4]}  на сумму {item[0]} сохранилась неправильно. "
-                                                    f"Она не будет учтена")
+                                                    f"Она не будет учтена.")
 
 
     def rightToolSwitchWeek_click(self):
         weeks = textParser.year_generator(2025)
         print(weeks)
+
+    def rightToolButton_click(self):
+        widgets = []
+
+        for i in range(self.layout_fix.count()):
+            item = self.layout_fix.itemAt(i)
+            widget = item.widget()
+            if widget is not None:
+                widgets.append(widget)
+
+        for widget in widgets:
+            if hasattr(widget, "isChecked") and widget.isChecked():
+                widget.setChecked(False)
+                self.layout_fix.removeWidget(widget)
+                self.layout_unfix.addWidget(widget)
+
+    def leftToolButton_click(self):
+        widgets = []
+
+        for i in range(self.layout_unfix.count()):
+            item = self.layout_unfix.itemAt(i)
+            widget = item.widget()
+            if widget is not None:
+                widgets.append(widget)
+
+        for widget in widgets:
+            if hasattr(widget, "isChecked") and widget.isChecked():
+                widget.setChecked(False)
+                self.layout_unfix.removeWidget(widget)
+                self.layout_fix.addWidget(widget)
+
 
 
 
