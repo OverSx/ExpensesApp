@@ -7,7 +7,7 @@ sys.setswitchinterval(0.01)
 
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QPushButton, QScrollArea, QVBoxLayout
 from PySide6.QtWidgets import QMessageBox, QDialog, QLineEdit
-from PySide6.QtCore import QDate
+from PySide6.QtCore import QDate, Signal
 from PySide6.QtGui import QDoubleValidator
 from ui_form import Ui_MainWindow
 from ui_dialog import Ui_Dialog
@@ -114,9 +114,13 @@ class MainWindow(QMainWindow):
 
     def addExpensesToDBBtn_click(self):
         dialog = AddExpenseDialog(self)
+
+        dialog.dataEntered.connect(self.expensesToBtn)
         dialog.exec()
 
 class AddExpenseDialog(QDialog):
+    dataEntered = Signal(list)
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.ui = Ui_Dialog()
@@ -136,7 +140,36 @@ class AddExpenseDialog(QDialog):
 
 
     def pushButtonAdd_click(self):
-        return 0
+        operation = []
+
+        sum = self.ui.lineEditAmount.text()
+        currency = self.ui.comboBox.currentText()
+        date = self.ui.dateEdit.date().toPython().strftime("%d/%m/%Y")
+        place = self.ui.lineEditPlace.text()
+        if not place:
+            place = "Неизвестно"
+
+
+        if self.ui.checkBoxLiza.isChecked():
+            year, week = textParser.expense_distributor(date)
+            operation.append([year, week, sum, currency, date, None, place, 2])
+
+            textParser.add_expense(operation)
+
+            self.accept()
+
+        else:
+            if self.ui.checkBox.isChecked():
+                operation.append([sum, currency, date, None, place, 0])
+                self.dataEntered.emit(operation)
+
+                self.accept()
+            else:
+                operation.append([sum, currency, date, None, place, 1])
+                self.dataEntered.emit(operation)
+
+                self.accept()
+
 
     def validate_amount(self):
         text = self.ui.lineEditAmount.text()
