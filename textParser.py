@@ -138,3 +138,7 @@ def year_generator(starting_year):
 def expense_distributor(date):
     return dbInit.get_week_and_year(date)
 
+def add_expense(expenses_list):
+    dbInit.init_db_expenses()
+    dbInit.save_new_expense(expenses_list)
+
