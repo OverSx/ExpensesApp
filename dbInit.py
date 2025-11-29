@@ -104,18 +104,31 @@ def get_week_and_year(date):
     conn.close()
     return row
 
-def get_dates_for_week(week_index):
+def get_dates_for_week(year, week_index):
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
 
     cur.execute("""
                 SELECT Date
                 FROM weeks
-                WHERE Week = ?
-                """, (week_index,))
+                WHERE Year = ? AND Week = ?
+                """, (year, week_index,))
 
     dates = cur.fetchall()
 
     conn.close()
     return dates
 
+def get_expenses_value(year, week_index, fix):
+    conn = sqlite3.connect(DB_NAME)
+    cur = conn.cursor()
+
+    cur.execute("""
+                SELECT amount, currency
+                FROM expenses
+                WHERE year = ? AND week = ? AND fixed = ?
+                """, (year, week_index, fix))
+
+    expenses = cur.fetchall()
+    conn.close()
+    return expenses
