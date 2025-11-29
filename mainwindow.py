@@ -43,7 +43,8 @@ class MainWindow(QMainWindow):
 
         #currentWeekExpensesLabel
         current_info_week_year = self.ui.chosenWeekLbl.text().split()
-        textParser.get_expense_amount(current_info_week_year[0], current_info_week_year[2])
+        p = textParser.get_expense_amount(current_info_week_year[0], current_info_week_year[2], 1)
+        self.ui.paidOutThisWeekNum.setText(f" {str(p)}")
 
 
     def addExpensesTextBtn_click(self):
