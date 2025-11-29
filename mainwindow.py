@@ -31,6 +31,7 @@ class MainWindow(QMainWindow):
         self.ui.removeExpensesBtn.clicked.connect(self.removeExpensesBtn_click)
         self.ui.addExpensesFileBtn.clicked.connect(self.addExpensesFileBtn_click)
         self.ui.addExpensesToDBBtn.clicked.connect(self.addExpensesToDBBtn_click)
+        self.ui.addExpensesToColumns.clicked.connect(self.addExpensesToColumns_click)
 
         #currentWeekLabel
         current_date = datetime.now()
@@ -39,6 +40,10 @@ class MainWindow(QMainWindow):
 
         #currentDayLabel
         self.ui.dateLabel.setText(f"{current_date.date().strftime("%A")} {str(current_date.date())}")
+
+        #currentWeekExpensesLabel
+        current_info_week_year = self.ui.chosenWeekLbl.text().split()
+        textParser.get_expense_amount(current_info_week_year[0], current_info_week_year[2])
 
 
     def addExpensesTextBtn_click(self):
@@ -127,6 +132,60 @@ class MainWindow(QMainWindow):
 
         dialog.dataEntered.connect(self.expensesToBtn)
         dialog.exec()
+
+    def addExpensesToColumns_click(self):
+        widgets = []
+        operations = []
+
+        for i in range(self.layout_unfix.count()):
+            item = self.layout_unfix.itemAt(i)
+            widget = item.widget()
+            if widget is not None:
+                widgets.append(widget)
+
+        for widget in widgets:
+            operation = []
+
+            toolTip_text = widget.toolTip().splitlines()
+            for line in toolTip_text:
+                l = line.split()
+                if l[0] == "Место:":
+                    place = " ".join(l[1:])
+                    operation.append(place)
+                else:
+                    operation.append(l[1])
+
+            operation.append(0)
+            operations.append(operation)
+            self.layout_unfix.removeWidget(widget)
+            widget.setParent(None)
+
+        widgets = []
+
+        for i in range(self.layout_fix.count()):
+            item = self.layout_fix.itemAt(i)
+            widget = item.widget()
+            if widget is not None:
+                widgets.append(widget)
+
+        for widget in widgets:
+            operation = []
+
+            toolTip_text = widget.toolTip().splitlines()
+            for line in toolTip_text:
+                l = line.split()
+                if l[0] == "Место:":
+                    place = " ".join(l[1:])
+                    operation.append(place)
+                else:
+                    operation.append(l[1])
+
+            operation.append(1)
+            operations.append(operation)
+            self.layout_fix.removeWidget(widget)
+            widget.setParent(None)
+
+        textParser.add_expense(operations)
 
 class AddExpenseDialog(QDialog):
     dataEntered = Signal(list)
