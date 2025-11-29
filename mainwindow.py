@@ -11,6 +11,7 @@ from PySide6.QtCore import QDate, Signal
 from PySide6.QtGui import QDoubleValidator
 from ui_form import Ui_MainWindow
 from ui_dialog import Ui_Dialog
+from datetime import datetime
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -30,6 +31,15 @@ class MainWindow(QMainWindow):
         self.ui.removeExpensesBtn.clicked.connect(self.removeExpensesBtn_click)
         self.ui.addExpensesFileBtn.clicked.connect(self.addExpensesFileBtn_click)
         self.ui.addExpensesToDBBtn.clicked.connect(self.addExpensesToDBBtn_click)
+
+        #currentWeekLabel
+        current_date = datetime.now()
+        w_cur, y_cur, dates_cur = textParser.get_full_week(current_date)
+        self.ui.chosenWeekLbl.setText(f"{y_cur} - {w_cur} ({dates_cur})")
+
+        #currentDayLabel
+        self.ui.dateLabel.setText(f"{current_date.date().strftime("%A")} {str(current_date.date())}")
+
 
     def addExpensesTextBtn_click(self):
         blocks = textParser.text_parser(self.ui.addExpensesTextEdit.toPlainText())
