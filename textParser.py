@@ -1,10 +1,7 @@
 import dbInit
 
-import re
-import sqlite3
+import requests
 from datetime import date, timedelta, datetime
-
-from PySide6.QtWidgets import QMessageBox
 
 def text_parser(text):
     lines = text.splitlines()
@@ -145,8 +142,34 @@ def add_expense(expenses_list):
 def get_full_week(date):
     cur_date = date.strftime("%d/%m/%Y")
     year, week = dbInit.get_week_and_year(cur_date)
-    dates_list = dbInit.get_dates_for_week(week)
+    dates_list = dbInit.get_dates_for_week(year, week)
 
     temp_str = f"{dates_list[0][0]} - {dates_list[-1][0]}"
     return week, year, temp_str
+
+def get_rate(base, target):
+    url = f"https://open.er-api.com/v6/latest/{base}"
+    data = requests.get(url).json()
+
+    return data["rates"][target]
+
+def get_expense_amount(year, week, fix):
+    p = dbInit.get_expenses_value(year, week, fix)
+    sum = 0
+
+    for each in p:
+        if each[1] == 'RUB':
+            rate = get_rate('GEL', 'RUB')
+            sum += each[0] / rate
+        elif each[1] == 'USD':
+            rate = get_rate('GEL', 'USD')
+            sum += each[0] * rate
+        elif each[1] == 'EUR':
+            rate = get_rate('GEL', 'EUR')
+            sum += each[0] * rate
+        else:
+            sum += each[0]
+
+
+    return sum
 
