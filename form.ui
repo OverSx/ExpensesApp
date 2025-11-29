@@ -81,9 +81,14 @@
      <rect>
       <x>10</x>
       <y>20</y>
-      <width>380</width>
+      <width>420</width>
       <height>50</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>32</pointsize>
+     </font>
     </property>
     <property name="text">
      <string/>
@@ -136,7 +141,7 @@
    </widget>
    <widget class="QPushButton" name="addExpensesFileBtn">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
@@ -148,6 +153,9 @@
     </property>
     <property name="text">
      <string>Добавить траты из файла</string>
+    </property>
+    <property name="checkable">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="QLabel" name="FoodLabel">
@@ -303,7 +311,7 @@
      <rect>
       <x>535</x>
       <y>270</y>
-      <width>190</width>
+      <width>200</width>
       <height>22</height>
      </rect>
     </property>
@@ -317,7 +325,7 @@
    <widget class="QToolButton" name="rightToolSwitchWeek">
     <property name="geometry">
      <rect>
-      <x>735</x>
+      <x>745</x>
       <y>270</y>
       <width>20</width>
       <height>20</height>
