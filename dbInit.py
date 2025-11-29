@@ -103,3 +103,19 @@ def get_week_and_year(date):
 
     conn.close()
     return row
+
+def get_dates_for_week(week_index):
+    conn = sqlite3.connect(DB_NAME)
+    cur = conn.cursor()
+
+    cur.execute("""
+                SELECT Date
+                FROM weeks
+                WHERE Week = ?
+                """, (week_index,))
+
+    dates = cur.fetchall()
+
+    conn.close()
+    return dates
+
