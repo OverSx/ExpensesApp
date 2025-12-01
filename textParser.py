@@ -153,20 +153,17 @@ def get_rate(base, target):
 
     return data["rates"][target]
 
-def get_expense_amount(year, week, fix):
+def get_expense_amount(year, week, fix, EUR_rate, USD_rate, RUB_rate):
     p = dbInit.get_expenses_value(year, week, fix)
     sum = 0
 
     for each in p:
         if each[1] == 'RUB':
-            rate = get_rate('GEL', 'RUB')
-            sum += each[0] / rate
+            sum += each[0] / float(RUB_rate)
         elif each[1] == 'USD':
-            rate = get_rate('GEL', 'USD')
-            sum += each[0] * rate
+            sum += each[0] * float(USD_rate)
         elif each[1] == 'EUR':
-            rate = get_rate('GEL', 'EUR')
-            sum += each[0] * rate
+            sum += each[0] * float(EUR_rate)
         else:
             sum += each[0]
 

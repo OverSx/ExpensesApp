@@ -41,10 +41,17 @@ class MainWindow(QMainWindow):
         #currentDayLabel
         self.ui.dateLabel.setText(f"{current_date.date().strftime("%A")} {str(current_date.date())}")
 
+        #todaysCurrencylabels
+        self.ui.EUR_value_label.setText(str(textParser.get_rate('GEL', 'EUR')))
+        self.ui.USD_value_label.setText(str(textParser.get_rate('GEL', 'USD')))
+        self.ui.RUB_value_label.setText(str(textParser.get_rate('GEL', 'RUB')))
+
         #currentWeekExpensesLabel
         current_info_week_year = self.ui.chosenWeekLbl.text().split()
-        p = textParser.get_expense_amount(current_info_week_year[0], current_info_week_year[2], 1)
+        p = textParser.get_expense_amount(current_info_week_year[0], current_info_week_year[2], 1, self.ui.EUR_value_label.text(),
+                                          self.ui.USD_value_label.text(), self.ui.RUB_value_label.text())
         self.ui.paidOutThisWeekNum.setText(f" {str(p)}")
+
 
 
     def addExpensesTextBtn_click(self):
