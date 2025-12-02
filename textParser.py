@@ -103,11 +103,15 @@ def blocks_parser(text_blocks):
 
     return parsed_data
 
+def last_date_req():
+    return dbInit.db_last_date_request()
+
 def year_generator(starting_year):
     weeks = []
     week = []
+    month = 1
 
-    d = dbInit.db_last_date_request()
+    d = last_date_req()
     if not d:
         d = date(starting_year, 1, 1)
         while d.weekday() != 5:
@@ -122,6 +126,7 @@ def year_generator(starting_year):
     for i in range(1, 53):
         for day in range(1, 8):
             week.append(current_date.year)
+            week.append(month)
             week.append(i)
             week.append(current_date.strftime("%d/%m/%Y"))
             weeks.append(week.copy())
@@ -129,11 +134,20 @@ def year_generator(starting_year):
 
             current_date += timedelta(days=1)
 
+        if current_date.month == month:
+            continue
+        else:
+            month += 1
+
     dbInit.init_db_weeks()
     dbInit.save_new_weeks(weeks)
 
 def expense_distributor(date):
-    return dbInit.get_week_and_year(date)
+    distr = dbInit.get_week_and_year(date)
+    if distr is not None:
+        return distr
+    else:
+        return 0, 0
 
 def add_expense(expenses_list):
     dbInit.init_db_expenses()
@@ -153,20 +167,66 @@ def get_rate(base, target):
 
     return data["rates"][target]
 
-def get_expense_amount(year, week, fix, EUR_rate, USD_rate, RUB_rate):
+def get_expense_amount(year, week, fix):
+    dbInit.init_db_expenses()
     p = dbInit.get_expenses_value(year, week, fix)
     sum = 0
 
     for each in p:
-        if each[1] == 'RUB':
-            sum += each[0] / float(RUB_rate)
-        elif each[1] == 'USD':
-            sum += each[0] * float(USD_rate)
-        elif each[1] == 'EUR':
-            sum += each[0] * float(EUR_rate)
-        else:
-            sum += each[0]
-
+        sum += float(each[0])
 
     return sum
+
+def get_month_dates(year, week_index):
+
+    dates_list = dbInit.get_dates_from_month(year, week_index)
+
+    return dates_list[0][0], dates_list[-1][0]
+
+def get_month_expenses(year, week_index):
+    unfix_sum = 0
+    fix_sum = 0
+    liza_sum = 0
+    expenses_unfix = []
+    expenses_fix = []
+    expenses_liza = []
+
+    week_list = dbInit.get_weekIndexes_for_month(year, week_index)
+
+    for week in week_list:
+        expenses_unfix.extend(dbInit.get_expenses_value(year, week[0], 0))
+        expenses_fix.extend(dbInit.get_expenses_value(year, week[0], 1))
+        expenses_liza.extend(dbInit.get_expenses_value(year, week[0], 2))
+
+        for expense in expenses_unfix:
+            unfix_sum += float(expense[0])
+
+        for expense in expenses_fix:
+            fix_sum += float(expense[0])
+
+        for expense in expenses_liza:
+            liza_sum += float(expense[0])
+
+    return unfix_sum, fix_sum, liza_sum
+
+def save_monthly_rent_to_DB(rent_amount, rent_currency, debt_amount):
+    dbInit.init_db_useful_data()
+    dbInit.save_new_useful_data(rent_amount, rent_currency, debt_amount)
+
+def update_monthly_rent():
+    dbInit.init_db_useful_data()
+    useful_data = dbInit.db_debt_and_rent_request()
+    if useful_data:
+        if useful_data[1] == "EUR":
+            index = 1
+        else:
+            index = 0
+
+        debt_list = [useful_data[0], index, useful_data[2]]
+
+    else:
+        debt_list = [600, 0, 0]
+
+    return debt_list
+
 
