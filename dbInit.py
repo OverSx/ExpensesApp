@@ -13,6 +13,7 @@ def init_db_expenses():
             week INTEGER NOT NULL,
             amount REAL,
             currency TEXT NOT NULL,
+            eur_amount REAL,
             date TEXT NOT NULL,
             time TEXT,
             place TEXT,
@@ -31,8 +32,25 @@ def init_db_weeks():
                 CREATE TABLE IF NOT EXISTS weeks(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 Year INTEGER NOT NULL,
+                Month INTEGER NOT NULL,
                 Week INTEGER NOT NULL,
                 Date TEXT NOT NULL
+                );
+                """)
+
+    conn.commit()
+    conn.close()
+
+def init_db_useful_data():
+    conn = sqlite3.connect(DB_NAME)
+    cur = conn.cursor()
+
+    cur.execute("""
+                CREATE TABLE IF NOT EXISTS useful_data(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                Rent_amount REAL NOT NULL,
+                Rent_currency TEXT NOT NULL,
+                Debt_amount REAL NOT NULL
                 );
                 """)
 
@@ -45,9 +63,9 @@ def save_new_expense(expenses_list):
 
     for expense in expenses_list:
         cur.execute("""
-            INSERT INTO expenses (year, week, amount, currency, date, time, place, fixed)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (expense[0], expense[1], expense[2], expense[3], expense[4], expense[5], expense[6], expense[7]))
+            INSERT INTO expenses (year, week, amount, currency, eur_amount, date, time, place, fixed)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (expense[0], expense[1], expense[2], expense[3], expense[4], expense[5], expense[6], expense[7], expense[8]))
 
     conn.commit()
     conn.close()
@@ -58,12 +76,55 @@ def save_new_weeks(week_list):
 
     for week in week_list:
         cur.execute("""
-            INSERT INTO weeks (Year, Week, Date)
-            VALUES (?, ?, ?)
-        """, (week[0], week[1], week[2]))
+            INSERT INTO weeks (Year, Month, Week, Date)
+            VALUES (?, ?, ?, ?)
+        """, (week[0], week[1], week[2], week[3]))
 
     conn.commit()
     conn.close()
+
+def save_new_useful_data(rent_amount, rent_currency, debt_amount):
+    conn = sqlite3.connect(DB_NAME)
+    cur = conn.cursor()
+
+    cur.execute("DELETE FROM useful_data")
+
+
+    cur.execute("""
+                INSERT INTO useful_data (Rent_amount, Rent_currency, Debt_amount)
+                VALUES (?, ?, ?)
+                """, (rent_amount, rent_currency, debt_amount))
+
+    conn.commit()
+    conn.close()
+
+def db_debt_and_rent_request():
+    conn = sqlite3.connect(DB_NAME)
+    cur = conn.cursor()
+
+    cursor = cursor = cur.execute("""SELECT name FROM sqlite_master 
+                            WHERE type='table' AND name='useful_data';""")
+
+    result = cursor.fetchone()
+
+    if result:
+        cursor.execute("""SELECT Rent_amount, Rent_currency, Debt_amount
+                        FROM useful_data 
+                        ORDER BY id DESC LIMIT 1
+                       """)
+
+        last_row = cursor.fetchone()
+
+        if last_row:
+            conn.close()
+            return last_row
+        else:
+            conn.close()
+            return None
+
+    else:
+        conn.close()
+        return None
 
 def db_last_date_request():
     conn = sqlite3.connect(DB_NAME)
@@ -119,12 +180,35 @@ def get_dates_for_week(year, week_index):
     conn.close()
     return dates
 
+def get_dates_from_month(year, week_index):
+    conn = sqlite3.connect(DB_NAME)
+    cur = conn.cursor()
+
+    cur.execute("""
+                SELECT Month
+                FROM weeks
+                WHERE Year = ? AND Week = ?
+                """, (year, week_index,))
+
+    month_index = cur.fetchone()
+
+    cur.execute("""
+                SELECT Date
+                FROM weeks
+                WHERE Year = ? AND Month = ?
+                """, (year, month_index[0],))
+
+    dates = cur.fetchall()
+
+    conn.close()
+    return dates
+
 def get_expenses_value(year, week_index, fix):
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
 
     cur.execute("""
-                SELECT amount, currency
+                SELECT eur_amount
                 FROM expenses
                 WHERE year = ? AND week = ? AND fixed = ?
                 """, (year, week_index, fix))
@@ -132,3 +216,25 @@ def get_expenses_value(year, week_index, fix):
     expenses = cur.fetchall()
     conn.close()
     return expenses
+
+def get_weekIndexes_for_month(year, week_index):
+    conn = sqlite3.connect(DB_NAME)
+    cur = conn.cursor()
+
+    cur.execute("""
+                SELECT Month
+                FROM weeks
+                WHERE Year = ? AND Week = ?
+                """, (year, week_index,))
+
+    month_index = cur.fetchone()
+
+    cur.execute("""
+                SELECT DISTINCT Week
+                FROM weeks
+                WHERE Year = ? AND Month = ?
+                """, (year, month_index[0],))
+
+    weeks = cur.fetchall()
+
+    return weeks
