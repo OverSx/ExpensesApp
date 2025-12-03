@@ -71,7 +71,7 @@
      <rect>
       <x>10</x>
       <y>20</y>
-      <width>420</width>
+      <width>701</width>
       <height>50</height>
      </rect>
     </property>
@@ -297,60 +297,6 @@
      </property>
     </widget>
    </widget>
-   <widget class="QLabel" name="chosenWeekLbl">
-    <property name="geometry">
-     <rect>
-      <x>480</x>
-      <y>35</y>
-      <width>200</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="cursor">
-     <cursorShape>PointingHandCursor</cursorShape>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="rightToolSwitchWeek">
-    <property name="geometry">
-     <rect>
-      <x>690</x>
-      <y>35</y>
-      <width>20</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="cursor">
-     <cursorShape>PointingHandCursor</cursorShape>
-    </property>
-    <property name="text">
-     <string>...</string>
-    </property>
-    <property name="arrowType">
-     <enum>Qt::ArrowType::RightArrow</enum>
-    </property>
-   </widget>
-   <widget class="QToolButton" name="leftToolSwitchWeek">
-    <property name="geometry">
-     <rect>
-      <x>450</x>
-      <y>35</y>
-      <width>20</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="cursor">
-     <cursorShape>PointingHandCursor</cursorShape>
-    </property>
-    <property name="text">
-     <string>...</string>
-    </property>
-    <property name="arrowType">
-     <enum>Qt::ArrowType::LeftArrow</enum>
-    </property>
-   </widget>
    <widget class="QPushButton" name="addExpensesToColumns">
     <property name="geometry">
      <rect>
@@ -471,7 +417,7 @@
    <widget class="Line" name="line">
     <property name="geometry">
      <rect>
-      <x>440</x>
+      <x>720</x>
       <y>20</y>
       <width>3</width>
       <height>50</height>
@@ -706,6 +652,96 @@
     </property>
     <property name="autoDefault">
      <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="yearComboBox">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>220</y>
+      <width>60</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="monthComboBox">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>220</y>
+      <width>100</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>January</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>February</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>March</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>April</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>May</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>June</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>July</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>August</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>September</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>October</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>November</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>December</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QComboBox" name="weekComboBox">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>220</y>
+      <width>240</width>
+      <height>20</height>
+     </rect>
     </property>
    </widget>
   </widget>
