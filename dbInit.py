@@ -180,23 +180,17 @@ def get_dates_for_week(year, week_index):
     conn.close()
     return dates
 
-def get_dates_from_month(year, week_index):
+def get_dates_from_month(year, month_index):
+    month_str = f"{month_index:02}"
+
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
 
     cur.execute("""
-                SELECT Month
-                FROM weeks
-                WHERE Year = ? AND Week = ?
-                """, (year, week_index,))
-
-    month_index = cur.fetchone()
-
-    cur.execute("""
                 SELECT Date
                 FROM weeks
-                WHERE Year = ? AND Month = ?
-                """, (year, month_index[0],))
+                WHERE substr(Date, 7, 4) = ? AND substr(Date, 4, 2) = ?
+                """, (year, month_str,))
 
     dates = cur.fetchall()
 
@@ -217,7 +211,53 @@ def get_expenses_value(year, week_index, fix):
     conn.close()
     return expenses
 
-def get_weekIndexes_for_month(year, week_index):
+def get_month_expenses_value(year, month_index, fix):
+    month_str = f"{month_index:02}"
+
+    conn = sqlite3.connect(DB_NAME)
+    cur = conn.cursor()
+
+    cur.execute("""
+                SELECT eur_amount
+                FROM expenses
+                WHERE year = ? AND substr(date, 4, 2) = ? AND fixed = ?
+                """, (year, month_str, fix))
+
+    expenses = cur.fetchall()
+    conn.close()
+
+    return expenses
+
+def get_weeks_db_unique_years():
+    conn = sqlite3.connect(DB_NAME)
+    cur = conn.cursor()
+
+    cur.execute("""
+                SELECT DISTINCT Year
+                FROM weeks
+                """)
+
+    year_list = cur.fetchall()
+
+    conn.close()
+
+    return year_list
+
+def get_weeks_for_month(year, month_index):
+    conn = sqlite3.connect(DB_NAME)
+    cur = conn.cursor()
+
+    cur.execute("""
+                SELECT DISTINCT Week
+                FROM weeks
+                WHERE Year = ? AND Month = ?
+                """, (year, month_index,))
+
+    weeks_list = cur.fetchall()
+
+    return weeks_list
+
+def get_month_from_week_and_year(year, week):
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
 
@@ -225,16 +265,10 @@ def get_weekIndexes_for_month(year, week_index):
                 SELECT Month
                 FROM weeks
                 WHERE Year = ? AND Week = ?
-                """, (year, week_index,))
+                """, (year, week,))
 
-    month_index = cur.fetchone()
+    month = cur.fetchone()
 
-    cur.execute("""
-                SELECT DISTINCT Week
-                FROM weeks
-                WHERE Year = ? AND Month = ?
-                """, (year, month_index[0],))
+    conn.close()
 
-    weeks = cur.fetchall()
-
-    return weeks
+    return month[0]
