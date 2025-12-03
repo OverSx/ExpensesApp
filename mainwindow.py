@@ -19,13 +19,35 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        current_date = datetime.now()
+        w_cur, y_cur, dates_cur = textParser.get_full_week(current_date)
+
+        #dbWeeksCreating
+        if not textParser.last_date_req():
+            textParser.year_generator(current_date.year)
+
+        #yearComboBox
+        years_list = textParser.get_unique_db_weeks_data()
+        for year in years_list:
+            self.ui.yearComboBox.addItem(str(year[0]))
+
+        #comboBoxesUpdateForCurrentDay
+        self.ui.yearComboBox.setCurrentText(str(y_cur))
+        self.ui.monthComboBox.setCurrentIndex(textParser.get_month_from_week(self.ui.yearComboBox.currentText(),
+                                                                             w_cur) - 1)
+        # weeksComboBox
+        self.update_current_week_comboBoxes()
+        for i in range(self.ui.weekComboBox.count()):
+            text = self.ui.weekComboBox.itemText(i)
+            if str(w_cur) in text:
+                self.ui.weekComboBox.setCurrentIndex(i)
+
         #scrollAreas
         self.layout_fix = QVBoxLayout(self.ui.gridLayoutExpenses)
         self.layout_unfix = QVBoxLayout(self.ui.gridLayoutExtraExpenses)
 
         #buttons
         self.ui.addExpensesTextBtn.clicked.connect(self.addExpensesTextBtn_click)
-        self.ui.rightToolSwitchWeek.clicked.connect(self.rightToolSwitchWeek_click)
         self.ui.rightToolButton.clicked.connect(self.rightToolButton_click)
         self.ui.leftToolButton.clicked.connect(self.leftToolButton_click)
         self.ui.removeExpensesBtn.clicked.connect(self.removeExpensesBtn_click)
@@ -33,22 +55,16 @@ class MainWindow(QMainWindow):
         self.ui.addExpensesToColumns.clicked.connect(self.addExpensesToColumns_click)
         self.ui.calcDebtBtn.clicked.connect(self.calcDebtBtn_click)
 
-        current_date = datetime.now()
-
-        #dbWeeksCreating
-        if not textParser.last_date_req():
-            textParser.year_generator(current_date.year)
-
-        #currentWeekLabel
-        w_cur, y_cur, dates_cur = textParser.get_full_week(current_date)
-        self.ui.chosenWeekLbl.setText(f"{y_cur} - {w_cur} ({dates_cur})")
+        #comboBoxesIndexChanges
+        self.ui.yearComboBox.currentIndexChanged.connect(self.ComboBox_change)
+        self.ui.monthComboBox.currentIndexChanged.connect(self.ComboBox_change)
+        self.ui.weekComboBox.currentIndexChanged.connect(self.weekComboBox_change)
 
         #currentDayLabel
         self.ui.dateLabel.setText(f"{current_date.date().strftime("%A")} {str(current_date.date())}")
 
         #currentMonthlabel
-        first_date_of_month, last_date_of_month = textParser.get_month_dates(y_cur, w_cur)
-        self.ui.monthDatesLabel.setText(f"{first_date_of_month} - {last_date_of_month}")
+        self.update_current_month_label()
 
         #todaysCurrencylabels
         self.ui.GEL_value_label.setText(str(round(textParser.get_rate('EUR', 'GEL'), 4)))
@@ -58,6 +74,9 @@ class MainWindow(QMainWindow):
         #currentWeekExpensesLabel
         self.updateCurrentExpensesLbls()
 
+        #currentMonthExpensesLabel
+        self.update_current_month_expenses()
+
         #currentDebtandRent
         rent_list = textParser.update_monthly_rent()
         self.ui.monthlyRentNum.setText(str(rent_list[0]))
@@ -66,8 +85,8 @@ class MainWindow(QMainWindow):
 
     def updateCurrentExpensesLbls(self):
         #currentWeekExpensesLabel
-        current_info_week_year = self.ui.chosenWeekLbl.text().split()
-        p = textParser.get_expense_amount(current_info_week_year[0], current_info_week_year[2], 1)
+        current_week = self.ui.weekComboBox.currentText().split()
+        p = textParser.get_expense_amount(self.ui.yearComboBox.currentText(), current_week[1], 1)
         self.ui.paidOutThisWeekNum.setText(f"{str(round(p, 2))} €")
 
         #RemainBalanceLabel
@@ -75,22 +94,39 @@ class MainWindow(QMainWindow):
         self.ui.remainedThisWeekNum.setText(f"{round(150 - float(exp[0]), 2)} €")
 
         #UnfixExpensesLabel
-        p = textParser.get_expense_amount(current_info_week_year[0], current_info_week_year[2], 0)
+        p = textParser.get_expense_amount(self.ui.yearComboBox.currentText(), current_week[1], 0)
         self.ui.unfixExpensesThisWeekNum.setText(f"{str(round(p, 2))} €")
 
         #LizaExpensesLabel
-        p = textParser.get_expense_amount(current_info_week_year[0], current_info_week_year[2], 2)
+        p = textParser.get_expense_amount(self.ui.yearComboBox.currentText(), current_week[1], 2)
         self.ui.lizaExpensesThisWeekNum.setText(f"{str(round(p, 2))} €")
 
+    def update_current_month_expenses(self):
         #MonthExpensesLabel
-        unfix_sum, fix_sum, liza_sum = textParser.get_month_expenses(current_info_week_year[0], current_info_week_year[2])
+        unfix_sum, fix_sum, liza_sum = textParser.get_month_expenses(self.ui.yearComboBox.currentText(),
+                                                                     self.ui.monthComboBox.currentIndex() + 1)
         self.ui.ExpensesThisMonthNum.setText(f"Учетные траты: {round(fix_sum, 2)} €\n"
                                              f"Внеучетные траты: {round(unfix_sum, 2)} €\n"
                                              f"Траты Лизочки: {round(liza_sum, 2)} €")
 
         self.ui.ExpensesThisMonthNumOverall.setText(f"{round(fix_sum, 2)} + {round(unfix_sum, 2)} = {round(fix_sum + unfix_sum, 2)} €")
 
+    def update_current_week_comboBoxes(self):
+        weeks_list = textParser.get_weeks_for_month(self.ui.yearComboBox.currentText(), self.ui.monthComboBox.currentIndex())
 
+        self.ui.weekComboBox.blockSignals(True)
+        self.ui.weekComboBox.clear()
+        self.ui.weekComboBox.blockSignals(False)
+
+        for week in weeks_list:
+            dates = textParser.get_dates_for_week(self.ui.yearComboBox.currentText(), week[0])
+            self.ui.weekComboBox.addItem(f"Неделя {str(week[0])} : {dates}")
+
+
+    def update_current_month_label(self):
+        first_date_of_month, last_date_of_month = textParser.get_month_dates(self.ui.yearComboBox.currentText(),
+                                                                             self.ui.monthComboBox.currentIndex() + 1)
+        self.ui.monthDatesLabel.setText(f"{first_date_of_month} - {last_date_of_month}")
 
     def addExpensesTextBtn_click(self):
         blocks = textParser.text_parser(self.ui.addExpensesTextEdit.toPlainText())
@@ -128,9 +164,6 @@ class MainWindow(QMainWindow):
                 QMessageBox.warning(self, "Предупреждение", f"Трата в {item[4]}  на сумму {item[0]} сохранилась неправильно. "
                                                     f"Она не будет учтена.")
 
-
-    def rightToolSwitchWeek_click(self):
-        QMessageBox.warning(self, "Предупреждение", "Gay")
 
     def rightToolButton_click(self):
         widgets = []
@@ -188,7 +221,7 @@ class MainWindow(QMainWindow):
         dialog = AddExpenseDialog(self, self.ui.GEL_value_label.text(), self.ui.USD_value_label.text(), self.ui.RUB_value_label.text())
 
         dialog.dataOut.connect(self.expensesToBtn)
-        dialog.triggerUpdate.connect(self.updateCurrentExpensesLbls)
+        dialog.triggerUpdate.connect(self.update_current_month_expenses)
         dialog.exec()
 
     def addExpensesToColumns_click(self):
@@ -258,6 +291,14 @@ class MainWindow(QMainWindow):
     def save_useful_data(self):
         textParser.save_monthly_rent_to_DB(self.ui.monthlyRentNum.text(), self.ui.monthlyRentCurrencyComboBox.currentText(),
                                            self.ui.remainDebtNum.text())
+
+    def ComboBox_change(self):
+        self.update_current_week_comboBoxes()
+        self.update_current_month_expenses()
+
+    def weekComboBox_change(self):
+        self.updateCurrentExpensesLbls()
+        self.update_current_month_label()
 
     def closeEvent(self, event):
         self.save_useful_data()
