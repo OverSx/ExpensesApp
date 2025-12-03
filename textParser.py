@@ -123,9 +123,11 @@ def year_generator(starting_year):
         current_date = datetime.strptime(d, "%d/%m/%Y").date()
         current_date += timedelta(days=1)
 
+    yearNum_for_this_year = current_date.year
+
     for i in range(1, 53):
         for day in range(1, 8):
-            week.append(current_date.year)
+            week.append(yearNum_for_this_year)
             week.append(month)
             week.append(i)
             week.append(current_date.strftime("%d/%m/%Y"))
@@ -177,13 +179,13 @@ def get_expense_amount(year, week, fix):
 
     return sum
 
-def get_month_dates(year, week_index):
+def get_month_dates(year, month_index):
 
-    dates_list = dbInit.get_dates_from_month(year, week_index)
+    dates_list = dbInit.get_dates_from_month(year, month_index)
 
     return dates_list[0][0], dates_list[-1][0]
 
-def get_month_expenses(year, week_index):
+def get_month_expenses(year, month_index):
     unfix_sum = 0
     fix_sum = 0
     liza_sum = 0
@@ -191,21 +193,18 @@ def get_month_expenses(year, week_index):
     expenses_fix = []
     expenses_liza = []
 
-    week_list = dbInit.get_weekIndexes_for_month(year, week_index)
+    expenses_unfix.extend(dbInit.get_month_expenses_value(year, month_index, 0))
+    expenses_fix.extend(dbInit.get_month_expenses_value(year, month_index, 1))
+    expenses_liza.extend(dbInit.get_month_expenses_value(year, month_index, 2))
 
-    for week in week_list:
-        expenses_unfix.extend(dbInit.get_expenses_value(year, week[0], 0))
-        expenses_fix.extend(dbInit.get_expenses_value(year, week[0], 1))
-        expenses_liza.extend(dbInit.get_expenses_value(year, week[0], 2))
+    for expense in expenses_unfix:
+        unfix_sum += float(expense[0])
 
-        for expense in expenses_unfix:
-            unfix_sum += float(expense[0])
+    for expense in expenses_fix:
+        fix_sum += float(expense[0])
 
-        for expense in expenses_fix:
-            fix_sum += float(expense[0])
-
-        for expense in expenses_liza:
-            liza_sum += float(expense[0])
+    for expense in expenses_liza:
+        liza_sum += float(expense[0])
 
     return unfix_sum, fix_sum, liza_sum
 
@@ -229,4 +228,24 @@ def update_monthly_rent():
 
     return debt_list
 
+def get_unique_db_weeks_data():
+    data_list = dbInit.get_weeks_db_unique_years()
 
+    return data_list
+
+def get_weeks_for_month(year, month):
+    weeks_list = dbInit.get_weeks_for_month(year, month + 1)
+
+    return weeks_list
+
+def get_dates_for_week(year, week):
+    dates_list = dbInit.get_dates_for_week(year, week)
+
+    temp_str = f"{dates_list[0][0]} - {dates_list[-1][0]}"
+
+    return temp_str
+
+def get_month_from_week(year, week):
+    month = dbInit.get_month_from_week_and_year(year, week)
+
+    return month
