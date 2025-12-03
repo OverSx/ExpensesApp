@@ -20,11 +20,12 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
 
         current_date = datetime.now()
-        w_cur, y_cur, dates_cur = textParser.get_full_week(current_date)
 
-        #dbWeeksCreating
+        # dbWeeksCreating
         if not textParser.last_date_req():
             textParser.year_generator(current_date.year)
+
+        w_cur, y_cur, dates_cur = textParser.get_full_week(current_date)
 
         #yearComboBox
         years_list = textParser.get_unique_db_weeks_data()

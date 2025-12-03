@@ -156,6 +156,7 @@ def add_expense(expenses_list):
     dbInit.save_new_expense(expenses_list)
 
 def get_full_week(date):
+    dbInit.init_db_weeks()
     cur_date = date.strftime("%d/%m/%Y")
     year, week = dbInit.get_week_and_year(cur_date)
     dates_list = dbInit.get_dates_for_week(year, week)
