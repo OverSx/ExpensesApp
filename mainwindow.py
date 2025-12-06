@@ -281,6 +281,7 @@ class MainWindow(QMainWindow):
 
         #RefreshCurrentExpenseSum
         self.updateCurrentExpensesLbls()
+        self.update_current_month_expenses()
 
     def calcDebtBtn_click(self):
         p = self.ui.ExpensesThisMonthNumOverall.text().split()
