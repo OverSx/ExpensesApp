@@ -12,7 +12,7 @@ def text_parser(text):
         if not line_parts:
             continue
 
-        if line_parts[0] in ("Payment:", "Conversion:", "Money", "Deposit"):
+        if line_parts[0] in ("Payment:", "Conversion:", "Money", "Deposit", "Code:"):
             if block:
                 text_blocks.append(block.copy())
                 block = []
@@ -22,7 +22,7 @@ def text_parser(text):
         elif line_parts[0].replace(".", "", 1).isdigit():
             if not block:
                 block.append(lines[i])
-            elif len(block) < 4:
+            elif len(block) < 4 and block[0].split(" ")[0] != "Code:":
                 block.append(lines[i])
             else:
                 text_blocks.append(block.copy())
@@ -39,7 +39,7 @@ def blocks_parser(text_blocks):
     parsed_data = []
     operation = []
 
-    income_key = ("Deposit", "Conversion")
+    income_key = ("Deposit", "Conversion", "Code")
     for i in range(0, len(text_blocks)):
         if any(keyword in item for item in text_blocks[i] for keyword in income_key):
             continue
