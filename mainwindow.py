@@ -143,6 +143,8 @@ class MainWindow(QMainWindow):
                 eur_amount = float(item[0]) / float(self.ui.USD_value_label.text())
             elif item[1] == 'RUB':
                 eur_amount = float(item[0]) / float(self.ui.RUB_value_label.text())
+            else:
+                eur_amount = float(item[0])
 
             year, week = textParser.expense_distributor(item[2])
 
@@ -286,8 +288,14 @@ class MainWindow(QMainWindow):
     def calcDebtBtn_click(self):
         p = self.ui.ExpensesThisMonthNumOverall.text().split()
         r = self.ui.ExpensesThisMonthNum.text().split()
+        flat_cost = float(self.ui.monthlyRentNum.text())
+        flat_cost_currency = self.ui.monthlyRentCurrencyComboBox.currentText()
+        if flat_cost_currency == "USD":
+            flat_cost_eur = flat_cost / float(self.ui.USD_value_label.text())
+        else:
+            flat_cost_eur = flat_cost
         was = float(self.ui.remainDebtNum.text())
-        new_debt = was - float(p[4])/2 - float(r[10])
+        new_debt = was - float(p[4])/2 - float(r[10]) + flat_cost_eur/2
         self.ui.remainDebtNum.setText(str(round(new_debt, 2)))
 
     def save_useful_data(self):
