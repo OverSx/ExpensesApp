@@ -220,7 +220,7 @@ def get_month_expenses_value(year, month_index, fix):
     cur.execute("""
                 SELECT eur_amount
                 FROM expenses
-                WHERE year = ? AND substr(date, 4, 2) = ? AND fixed = ?
+                WHERE substr(date, 7, 4) = ? AND substr(date, 4, 2) = ? AND fixed = ?
                 """, (year, month_str, fix))
 
     expenses = cur.fetchall()
