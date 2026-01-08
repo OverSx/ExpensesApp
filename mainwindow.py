@@ -25,6 +25,9 @@ class MainWindow(QMainWindow):
         if not textParser.last_date_req():
             textParser.year_generator(current_date.year)
 
+        if datetime.strptime(textParser.last_date_req(), "%d/%m/%Y").date() < current_date.date():
+            textParser.year_generator(current_date.year)
+
         w_cur, y_cur, dates_cur = textParser.get_full_week(current_date)
 
         #yearComboBox
@@ -40,7 +43,7 @@ class MainWindow(QMainWindow):
         self.update_current_week_comboBoxes()
         for i in range(self.ui.weekComboBox.count()):
             text = self.ui.weekComboBox.itemText(i)
-            if str(w_cur) in text:
+            if str(dates_cur) in text:
                 self.ui.weekComboBox.setCurrentIndex(i)
 
         #scrollAreas
