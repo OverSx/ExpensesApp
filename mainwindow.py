@@ -149,6 +149,12 @@ class MainWindow(QMainWindow):
             else:
                 eur_amount = float(item[0])
 
+            for fmt in ('%d/%m/%Y', '%d/%m/%y'):
+                try:
+                    dt = datetime.strptime(item[2], fmt)
+                    item[2] = dt.strftime("%d/%m/%Y")
+                except:
+                    pass
             year, week = textParser.expense_distributor(item[2])
 
             if year == 0 or week == 0:
