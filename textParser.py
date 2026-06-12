@@ -42,86 +42,88 @@ def blocks_parser(text_blocks):
     operation = []
 
     income_key = ("Deposit", "Conversion", "Code")
-    for i in range(0, len(text_blocks)):
-        if any(keyword in item for item in text_blocks[i] for keyword in income_key):
-            continue
-        elif any("Payment" in item for item in text_blocks[i]):
+    try:
+        for i in range(0, len(text_blocks)):
+            if any(keyword in item for item in text_blocks[i] for keyword in income_key):
+                continue
+            elif any("Payment" in item for item in text_blocks[i]):
 
-            #add amount and currency
-            if len(text_blocks[i][1].split(" ")) != 1:
-                text_parts = text_blocks[i][1].split()
+                #add amount and currency
+                if len(text_blocks[i][1].split(" ")) != 1:
+                    text_parts = text_blocks[i][1].split()
+                    operation.append(text_parts[0])
+                    operation.append(text_parts[1])
+                else:
+                    amount, currency = re.fullmatch(r'(\d+(?:\.\d+)?)([A-Za-z]+)', text_blocks[i][1]).groups()
+                    operation.append(amount)
+                    operation.append(currency)
+
+                #add date and time
+                text_parts = text_blocks[i][-1].split()
+                try:
+                    operation.append(text_parts[2])
+                    operation.append(text_parts[3])
+                except:
+                    operation.append(text_parts[0])
+                    operation.append(text_parts[1])
+
+                #add place
+                operation.append(f"Оплата {text_blocks[i][2]}")
+
+                #add fixed param
+                operation.append(0)
+
+            elif any("Money" in item for item in text_blocks[i]):
+
+                #add amount and currency
+                if len(text_blocks[i][1].split(" ")) != 1:
+                    text_parts = text_blocks[i][1].split()
+                    operation.append(text_parts[0])
+                    operation.append(text_parts[1])
+                else:
+                    amount, currency = re.fullmatch(r'(\d+(?:\.\d+)?)([A-Za-z]+)', text_blocks[i][1]).groups()
+                    operation.append(amount)
+                    operation.append(currency)
+
+                #add date and time
+                text_parts = text_blocks[i][-1].split()
                 operation.append(text_parts[0])
-                operation.append(text_parts[1])
+                operation.append(None)
+
+                #add place
+                operation.append("Перевод")
+
+                #add fixed param
+                operation.append(0)
+
             else:
-                amount, currency = re.fullmatch(r'(\d+(?:\.\d+)?)([A-Za-z]+)', text_blocks[i][1]).groups()
-                operation.append(amount)
-                operation.append(currency)
 
-            #add date and time
-            text_parts = text_blocks[i][-1].split()
-            try:
-                operation.append(text_parts[2])
-                operation.append(text_parts[3])
-            except:
-                operation.append(text_parts[0])
-                operation.append(text_parts[1])
+                #add amount and currency
+                if len(text_blocks[i][0].split(" ")) != 1:
+                    text_parts = text_blocks[i][0].split()
+                    operation.append(text_parts[0])
+                    operation.append(text_parts[1])
+                else:
+                    amount, currency = re.fullmatch(r'(\d+(?:\.\d+)?)([A-Za-z]+)', text_blocks[i][0]).groups()
+                    operation.append(amount)
+                    operation.append(currency)
 
-            #add place
-            operation.append(f"Оплата {text_blocks[i][2]}")
+                #add date and time
+                text_parts = text_blocks[i][-1].split()
+                operation.append(text_parts[-2])
+                operation.append(text_parts[-1])
 
-            #add fixed param
-            operation.append(0)
+                #add place
+                operation.append(text_blocks[i][2])
 
-        elif any("Money" in item for item in text_blocks[i]):
+                #add fixed param
+                operation.append(1)
 
-            #add amount and currency
-            if len(text_blocks[i][1].split(" ")) != 1:
-                text_parts = text_blocks[i][1].split()
-                operation.append(text_parts[0])
-                operation.append(text_parts[1])
-            else:
-                amount, currency = re.fullmatch(r'(\d+(?:\.\d+)?)([A-Za-z]+)', text_blocks[i][1]).groups()
-                operation.append(amount)
-                operation.append(currency)
+            parsed_data.append(operation)
+            operation = []
 
-            #add date and time
-            text_parts = text_blocks[i][-1].split()
-            operation.append(text_parts[0])
-            operation.append(None)
-
-            #add place
-            operation.append("Перевод")
-
-            #add fixed param
-            operation.append(0)
-
-        else:
-
-            #add amount and currency
-            if len(text_blocks[i][0].split(" ")) != 1:
-                text_parts = text_blocks[i][0].split()
-                operation.append(text_parts[0])
-                operation.append(text_parts[1])
-            else:
-                amount, currency = re.fullmatch(r'(\d+(?:\.\d+)?)([A-Za-z]+)', text_blocks[i][0]).groups()
-                operation.append(amount)
-                operation.append(currency)
-
-            #add date and time
-            text_parts = text_blocks[i][-1].split()
-            operation.append(text_parts[-2])
-            operation.append(text_parts[-1])
-
-            #add place
-            operation.append(text_blocks[i][2])
-
-            #add fixed param
-            operation.append(1)
-
-        parsed_data.append(operation)
-        operation = []
-
-    return parsed_data
+        return parsed_data
+    except: return []
 
 def last_date_req():
     return dbInit.db_last_date_request()
