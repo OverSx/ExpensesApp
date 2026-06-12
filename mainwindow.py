@@ -60,6 +60,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.addExpensesToDBBtn.clicked.connect(self.addExpensesToDBBtn_click)
         self.ui.addExpensesToColumns.clicked.connect(self.addExpensesToColumns_click)
         self.ui.calcDebtBtn.clicked.connect(self.calcDebtBtn_click)
+        self.ui.seeExpenses.clicked.connect(self.seeExpensesBtn_click)
 
         #comboBoxesIndexChanges
         self.ui.yearComboBox.currentIndexChanged.connect(self.ComboBox_change)
@@ -312,6 +313,10 @@ class MainWindow(QtWidgets.QMainWindow):
         new_debt = was - float(p[4])/2 - float(r[10]) + flat_cost_eur/2
         self.ui.remainDebtNum.setText(str(round(new_debt, 2)))
 
+    def seeExpensesBtn_click(self):
+        self.expenses_window = ExpensesWindow(self.ui.yearComboBox.currentText(), self.ui.monthComboBox.currentIndex(), self.ui.monthComboBox.currentText())
+        self.expenses_window.show()
+
     def save_useful_data(self):
         textParser.save_monthly_rent_to_DB(self.ui.monthlyRentNum.text(), self.ui.monthlyRentCurrencyComboBox.currentText(),
                                            self.ui.remainDebtNum.text())
@@ -406,8 +411,88 @@ class AddExpenseDialog(QDialog):
             self.ui.lineEditAmount.setStyleSheet("")
             self.ui.pushButtonAdd.setEnabled(True)
 
+class ExpensesWindow(QtWidgets.QWidget):
+    def __init__(self, year, month_index, month_name, parent=None):
+        super().__init__(parent)
+
+        self.year = year
+        self.month_index = month_index
+        self.month_name = month_name
+
+        self.setWindowIcon(QIcon("icons/expenses_icon_noback.ico"))
+        self.setWindowTitle(f"Список трат в {self.month_name}")
+        self.resize(800, 500)
+
+        self.comboBox = QtWidgets.QComboBox()
+        self.comboBox.addItems([
+            "Внеучетные",
+            "Учетные",
+            "Траты Лизочки",
+        ])
+        self.comboBox.setFixedWidth(160)
+
+        self.table = QtWidgets.QTableWidget()
+        self.table.setColumnCount(4)
+        self.table.setHorizontalHeaderLabels([
+            "Дата",
+            "Место",
+            "Сумма",
+            "Валюта",
+        ])
+
+        self.table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+
+        self.table.verticalHeader().setVisible(False)
+
+        self.table.horizontalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.Stretch
+        )
+
+        left_layout = QtWidgets.QVBoxLayout()
+        left_layout.addWidget(self.comboBox)
+        left_layout.addStretch()
+
+        main_layout = QtWidgets.QHBoxLayout()
+        main_layout.addLayout(left_layout)
+        main_layout.addWidget(self.table)
+
+        self.setLayout(main_layout)
+
+        self.comboBox.currentIndexChanged.connect(self.load_expenses)
+
+        self.load_expenses(0)
+
+    def load_expenses(self, expense_type_index):
+        expenses = textParser.get_every_expense_in_a_month(
+            self.year,
+            self.month_index,
+            expense_type_index
+        )
+
+        expenses = sorted(
+            expenses,
+            key=lambda expense: datetime.strptime(
+                expense[6],
+                "%d/%m/%Y"
+            ),
+            reverse=True
+        )
+
+        self.table.setRowCount(len(expenses))
+
+        for row, expense in enumerate(expenses):
+            date = expense[6]
+            place = expense[8]
+            amount = expense[3]
+            currency = expense[4]
+
+            self.table.setItem(row, 0, QtWidgets.QTableWidgetItem(str(date)))
+            self.table.setItem(row, 1, QtWidgets.QTableWidgetItem(str(place)))
+            self.table.setItem(row, 2, QtWidgets.QTableWidgetItem(str(amount)))
+            self.table.setItem(row, 3, QtWidgets.QTableWidgetItem(str(currency)))
+
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()
     window.show()
 
