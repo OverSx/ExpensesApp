@@ -130,25 +130,6 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="addExpensesFileBtn">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>110</y>
-      <width>170</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Добавить траты из файла</string>
-    </property>
-    <property name="checkable">
-     <bool>false</bool>
-    </property>
-   </widget>
    <widget class="QLabel" name="FoodLabel">
     <property name="geometry">
      <rect>
@@ -742,6 +723,19 @@
       <width>240</width>
       <height>20</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="seeExpenses">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>260</y>
+      <width>131</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Посмотреть траты</string>
     </property>
    </widget>
   </widget>
