@@ -5,20 +5,22 @@ import textParser
 import sys
 sys.setswitchinterval(0.01)
 
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QGridLayout, QPushButton, QScrollArea, QVBoxLayout
+from PySide6 import QtWidgets
 from PySide6.QtWidgets import QMessageBox, QDialog, QLineEdit
 from PySide6.QtCore import QDate, Signal
-from PySide6.QtGui import QDoubleValidator
+from PySide6.QtGui import QDoubleValidator, QIcon
 from ui_form import Ui_MainWindow
 from ui_dialog import Ui_Dialog
 from datetime import datetime
 
-class MainWindow(QMainWindow):
+class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
 
+        self.setWindowIcon(QIcon("icons/expenses_icon_noback.ico"))
+        self.setWindowTitle("Учет расходов")
         current_date = datetime.now()
 
         # dbWeeksCreating
