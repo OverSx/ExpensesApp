@@ -58,11 +58,6 @@ class Ui_MainWindow(object):
         self.addExpensesTextBtn.setGeometry(QRect(330, 140, 100, 22))
         self.addExpensesTextBtn.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.addExpensesTextBtn.setAutoDefault(False)
-        self.addExpensesFileBtn = QPushButton(self.centralwidget)
-        self.addExpensesFileBtn.setObjectName(u"addExpensesFileBtn")
-        self.addExpensesFileBtn.setEnabled(False)
-        self.addExpensesFileBtn.setGeometry(QRect(10, 110, 170, 20))
-        self.addExpensesFileBtn.setCheckable(False)
         self.FoodLabel = QLabel(self.centralwidget)
         self.FoodLabel.setObjectName(u"FoodLabel")
         self.FoodLabel.setGeometry(QRect(170, 300, 60, 20))
@@ -218,6 +213,9 @@ class Ui_MainWindow(object):
         self.weekComboBox = QComboBox(self.centralwidget)
         self.weekComboBox.setObjectName(u"weekComboBox")
         self.weekComboBox.setGeometry(QRect(190, 220, 240, 20))
+        self.seeExpenses = QPushButton(self.centralwidget)
+        self.seeExpenses.setObjectName(u"seeExpenses")
+        self.seeExpenses.setGeometry(QRect(450, 260, 131, 25))
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QStatusBar(MainWindow)
         self.statusbar.setObjectName(u"statusbar")
@@ -241,7 +239,6 @@ class Ui_MainWindow(object):
         self.dateLabel.setText("")
         self.addExpensesLabel.setText(QCoreApplication.translate("MainWindow", u"\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0442\u0440\u0430\u0442\u044b \u0438\u0437 \u0442\u0435\u043a\u0441\u0442\u0430 ->", None))
         self.addExpensesTextBtn.setText(QCoreApplication.translate("MainWindow", u"\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c", None))
-        self.addExpensesFileBtn.setText(QCoreApplication.translate("MainWindow", u"\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u0442\u0440\u0430\u0442\u044b \u0438\u0437 \u0444\u0430\u0439\u043b\u0430", None))
         self.FoodLabel.setText(QCoreApplication.translate("MainWindow", u"\u0415\u0434\u0430", None))
         self.ExtraLabel.setText(QCoreApplication.translate("MainWindow", u"\u0412\u043d\u0435\u0443\u0447\u0435\u0442\u043d\u044b\u0435", None))
         self.rightToolButton.setText(QCoreApplication.translate("MainWindow", u"...", None))
@@ -285,5 +282,6 @@ class Ui_MainWindow(object):
         self.monthComboBox.setItemText(10, QCoreApplication.translate("MainWindow", u"November", None))
         self.monthComboBox.setItemText(11, QCoreApplication.translate("MainWindow", u"December", None))
 
+        self.seeExpenses.setText(QCoreApplication.translate("MainWindow", u"\u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u0442\u0440\u0430\u0442\u044b", None))
     # retranslateUi
 
