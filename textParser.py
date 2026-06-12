@@ -272,3 +272,12 @@ def get_month_from_week(year, week):
     month = dbInit.get_month_from_week_and_year(year, week)
 
     return month
+
+def get_every_expense_in_a_month(year, month, fixed):
+    expenses_list = []
+
+    expenses_week = dbInit.get_full_expenses_list(year, month + 1, fixed)
+    for expense in expenses_week:
+        expenses_list.append(expense)
+
+    return expenses_list
