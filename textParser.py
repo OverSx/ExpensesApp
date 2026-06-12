@@ -2,6 +2,7 @@ import dbInit
 
 import requests
 from datetime import date, timedelta, datetime
+import re
 
 def text_parser(text):
     lines = text.splitlines()
@@ -12,14 +13,15 @@ def text_parser(text):
         if not line_parts:
             continue
 
-        if line_parts[0] in ("Payment:", "Conversion:", "Money", "Deposit", "Code:"):
+        if any(word in line_parts[0] for word in ("Payment", "Conversion", "Money", "Deposit", "Code")):
             if block:
                 text_blocks.append(block.copy())
                 block = []
                 block.append(lines[i])
             else:
                 block.append(lines[i])
-        elif line_parts[0].replace(".", "", 1).isdigit():
+        elif ((len(line_parts) == 1 and line_parts[0][:-3].replace(".", "", 1).isdigit()) or
+              (line_parts[0].replace(".", "", 1).isdigit())):
             if not block:
                 block.append(lines[i])
             elif len(block) < 4 and block[0].split(" ")[0] != "Code:":
@@ -46,14 +48,23 @@ def blocks_parser(text_blocks):
         elif any("Payment" in item for item in text_blocks[i]):
 
             #add amount and currency
-            text_parts = text_blocks[i][1].split()
-            operation.append(text_parts[0])
-            operation.append(text_parts[1])
+            if len(text_blocks[i][1].split(" ")) != 1:
+                text_parts = text_blocks[i][1].split()
+                operation.append(text_parts[0])
+                operation.append(text_parts[1])
+            else:
+                amount, currency = re.fullmatch(r'(\d+(?:\.\d+)?)([A-Za-z]+)', text_blocks[i][1]).groups()
+                operation.append(amount)
+                operation.append(currency)
 
             #add date and time
-            text_parts = text_blocks[i][4].split()
-            operation.append(text_parts[2])
-            operation.append(text_parts[3])
+            text_parts = text_blocks[i][-1].split()
+            try:
+                operation.append(text_parts[2])
+                operation.append(text_parts[3])
+            except:
+                operation.append(text_parts[0])
+                operation.append(text_parts[1])
 
             #add place
             operation.append(f"Оплата {text_blocks[i][2]}")
@@ -64,12 +75,17 @@ def blocks_parser(text_blocks):
         elif any("Money" in item for item in text_blocks[i]):
 
             #add amount and currency
-            text_parts = text_blocks[i][1].split()
-            operation.append(text_parts[0])
-            operation.append(text_parts[1])
+            if len(text_blocks[i][1].split(" ")) != 1:
+                text_parts = text_blocks[i][1].split()
+                operation.append(text_parts[0])
+                operation.append(text_parts[1])
+            else:
+                amount, currency = re.fullmatch(r'(\d+(?:\.\d+)?)([A-Za-z]+)', text_blocks[i][1]).groups()
+                operation.append(amount)
+                operation.append(currency)
 
             #add date and time
-            text_parts = text_blocks[i][3].split()
+            text_parts = text_blocks[i][-1].split()
             operation.append(text_parts[0])
             operation.append(None)
 
@@ -82,18 +98,22 @@ def blocks_parser(text_blocks):
         else:
 
             #add amount and currency
-            text_parts = text_blocks[i][0].split()
-            operation.append(text_parts[0])
-            operation.append(text_parts[1])
+            if len(text_blocks[i][0].split(" ")) != 1:
+                text_parts = text_blocks[i][0].split()
+                operation.append(text_parts[0])
+                operation.append(text_parts[1])
+            else:
+                amount, currency = re.fullmatch(r'(\d+(?:\.\d+)?)([A-Za-z]+)', text_blocks[i][0]).groups()
+                operation.append(amount)
+                operation.append(currency)
 
             #add date and time
-            text_parts = text_blocks[i][2].split()
+            text_parts = text_blocks[i][-1].split()
             operation.append(text_parts[-2])
             operation.append(text_parts[-1])
 
             #add place
-            place = " ".join(text_parts[:-2])
-            operation.append(place)
+            operation.append(text_blocks[i][2])
 
             #add fixed param
             operation.append(1)
