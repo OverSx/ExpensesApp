@@ -135,10 +135,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.monthDatesLabel.setText(f"{first_date_of_month} - {last_date_of_month}")
 
     def addExpensesTextBtn_click(self):
-        blocks = textParser.text_parser(self.ui.addExpensesTextEdit.toPlainText())
-        operations = textParser.blocks_parser(blocks)
-        self.ui.addExpensesTextEdit.clear()
-        self.expensesToBtn(operations)
+        if self.ui.addExpensesTextEdit.toPlainText():
+            blocks = textParser.text_parser(self.ui.addExpensesTextEdit.toPlainText())
+            operations = textParser.blocks_parser(blocks)
+            if not operations:
+                QMessageBox.warning(self, "Ошибка", "Некорректный формат введенных трат!")
+            self.ui.addExpensesTextEdit.clear()
+            self.expensesToBtn(operations)
+        else: pass
 
     def expensesToBtn(self, operation_list):
         for item in operation_list:
@@ -160,11 +164,10 @@ class MainWindow(QtWidgets.QMainWindow):
             year, week = textParser.expense_distributor(item[2])
 
             if year == 0 or week == 0:
-                QMessageBox.critical(None, "Ошибка", "Неправильная дата. Такой траты быть не могло, либо мы не вносим"
-                                                     " доисторические траты")
+                QMessageBox.critical(None, "Ошибка", "Неправильная дата.")
                 continue
 
-            btn = QPushButton(f"Сумма: {item[0]} {item[1]}, {item[4]}")
+            btn = QtWidgets.QPushButton(f"Сумма: {item[0]} {item[1]}, {item[4]}")
             btn.setToolTip(f"Год: {year}\nНеделя: {week}\nСумма: {item[0]}\nВалюта: {item[1]}\nEUR: {str(round(eur_amount, 2))}\n"
                            f"Дата: {item[2]}\nВремя: {item[3]}\nМесто: {item[4]}")
             btn.setCheckable(True)
