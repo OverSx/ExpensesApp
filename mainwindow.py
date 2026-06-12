@@ -47,8 +47,8 @@ class MainWindow(QMainWindow):
                 self.ui.weekComboBox.setCurrentIndex(i)
 
         #scrollAreas
-        self.layout_fix = QVBoxLayout(self.ui.gridLayoutExpenses)
-        self.layout_unfix = QVBoxLayout(self.ui.gridLayoutExtraExpenses)
+        self.layout_fix = QtWidgets.QVBoxLayout(self.ui.gridLayoutExpenses)
+        self.layout_unfix = QtWidgets.QVBoxLayout(self.ui.gridLayoutExtraExpenses)
 
         #buttons
         self.ui.addExpensesTextBtn.clicked.connect(self.addExpensesTextBtn_click)
