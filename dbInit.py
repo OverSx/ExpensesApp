@@ -272,3 +272,20 @@ def get_month_from_week_and_year(year, week):
     conn.close()
 
     return month[0]
+
+def get_full_expenses_list(year, month_index, fixed):
+    month_str = f"{month_index:02}"
+
+    conn = sqlite3.connect(DB_NAME)
+    cur = conn.cursor()
+
+    cur.execute("""
+                SELECT *
+                FROM expenses
+                WHERE substr(date, 7, 4) = ? AND substr(date, 4, 2) = ? AND fixed = ?
+                """, (year, month_str, fixed,))
+
+    expenses_list = cur.fetchall()
+    conn.close()
+
+    return expenses_list
